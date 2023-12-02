@@ -83,12 +83,48 @@ void day1(cstr in)
     print("Second calibration values sum: %\n", sum(cal));
 }
 
+void day2(cstr in)
+{
+    map<dstr, s64> bag;
+    bag["red"_s] = 12;
+    bag["green"_s] = 13;
+    bag["blue"_s] = 14;
+    s64 sum = 0;
+    s64 sum2 = 0;
+    split(in, "\n"_s, [&](auto row)
+    {
+        if(size(row) == 0) return;
+        bool possible = true;
+        map<dstr, s64> minimum;
+        auto game = split(row, ":"_s)[1];
+        split(slice(game, 1), "; "_s, [&](auto round)
+        {
+            if(size(round) == 0) return;
+            split(round, ", "_s, [&](auto cubes)
+            {
+                auto num = toint(split(cubes, " "_s)[0]);
+                auto color = split(cubes, " "_s)[1];
+                if(bag[color] < num) possible = false;
+                minimum[color] = max(minimum[color], num);
+            });
+        });
+        if(possible)
+        {
+            auto id = toint(split(split(row, ":"_s)[0], " "_s)[1]);
+            sum += id;
+        }
+        sum2 += minimum["red"_s] * minimum["green"_s] * minimum["blue"_s];
+    });
+    print("Sum of IDs: %\n", sum);
+    print("Sum of the power: %\n", sum2);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day1.txt"_s);
-        day1(in);
+        dstr in = filestr("day2.txt"_s);
+        day2(in);
     }
     catch(const error& e)
     {
