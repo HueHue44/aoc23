@@ -119,12 +119,80 @@ void day2(cstr in)
     print("Sum of the power: %\n", sum2);
 }
 
+void day3(cstr in)
+{
+    auto engine = split(in, "\n"_s);
+    using point = sta<int, 2>;
+    map<point, dyn<s64>> gears;
+    s64 sum = 0;
+    for(umm row = 0; row < size(engine); row++)
+    {
+        s64 num = 0;
+        bool adj = false;
+        dyn<point> stars;
+        for(umm col = 0; col < size(engine[row]); col++)
+        {
+            char c = engine[row][col];
+            if(c < '0' || c > '9')
+            {
+                if(num && adj)
+                {
+                    sum += num;
+                }
+                for(umm i = 0; i < size(stars); i++)
+                {
+                    gears[stars[i]].add(num);
+                }
+                num = 0;
+                adj = false;
+                stars.resize(0);
+            }
+            else
+            {
+                num = num * 10 + (c - '0');
+                for(umm i = 0; i < 3; i++)
+                {
+                    for(umm j = 0; j < 3; j++)
+                    {
+                        if(row + i && col + j && col + j - 1 < size(engine[row + i - 1]))
+                        {
+                            char cadj = engine[row + i - 1][col + j - 1];
+                            adj |= (cadj < '0' || cadj > '9') && cadj != '.';
+                            point p{int(row + i - 1), int(col + j - 1)};
+                            if(cadj == '*' && find(stars, p) == -1) stars.add(p);
+                        }
+                    }
+                }
+            }
+        }
+        if(num && adj)
+        {
+            sum += num;
+        }
+        for(umm i = 0; i < size(stars); i++)
+        {
+            gears[stars[i]].add(num);
+        }
+        num = 0;
+        adj = false;
+        stars.resize(0);
+    }
+    print("sum: %\n", sum);
+    sum = 0;
+    each(gears, [&](auto it)
+    {
+        const auto& vals = get<1>(it);
+        if(size(vals) == 2) sum += vals[0] * vals[1];
+    });
+    print("sum of gear ratios: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day2.txt"_s);
-        day2(in);
+        dstr in = filestr("day3.txt"_s);
+        day3(in);
     }
     catch(const error& e)
     {
