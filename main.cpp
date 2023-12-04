@@ -187,12 +187,48 @@ void day3(cstr in)
     print("sum of gear ratios: %\n", sum);
 }
 
+void day4(cstr in)
+{
+    s64 sum = 0;
+    dyn<s64> wins;
+    split(in, "\n"_s, [&](auto it)
+    {
+        if(size(it))
+        {
+            auto card = split(it, ": ");
+            auto nums = split(card[1], " | ");
+            auto win = split(nums[0], " ");
+            for(umm i = 0; i < size(win); i++) if(!size(win[i])) win.remove(i--);
+            auto have = split(nums[1], " ");
+            for(umm i = 0; i < size(have); i++) if(!size(have[i])) have.remove(i--);
+            s64 c = 0;
+            for(umm i = 0; i < size(win); i++) c += s64(count(have, win[i]));
+            wins.add(c);
+            c = c ? (1 << (c - 1)) : 0;
+            sum += c;
+        }
+    });
+    print("sum: %\n", sum);
+    dyn<s64> copies;
+    for(umm i = 0; i < size(wins); i++) copies.add(s64(1));
+    sum = 0;
+    for(umm i = 0; i < size(wins); i++)
+    {
+        sum += wins[i] * copies[i] + 1;
+        for(s64 w = 0; w < wins[i]; w++)
+        {
+            copies[i + umm(w) + 1] += copies[i];
+        }
+    }
+    print("copies: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day3.txt"_s);
-        day3(in);
+        dstr in = filestr("day4.txt"_s);
+        day4(in);
     }
     catch(const error& e)
     {
