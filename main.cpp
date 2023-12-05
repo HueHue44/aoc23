@@ -223,12 +223,62 @@ void day4(cstr in)
     print("copies: %\n", sum);
 }
 
+void day5(cstr in)
+{
+    auto maps = split(in, "\n\n");
+    auto first = split(maps[0], "seeds: ")[1];
+    s64 lowest = 1LL << 60LL;
+    s64 lowest2 = lowest;
+    s64 prev = -1;
+    split(first, " "_s, [&](auto it)
+    {
+        auto seed = toint(it);
+        dyn<sta<s64, 2>> track;
+        if(prev == -1) prev = seed;
+        else track.add(sta(prev, seed));
+        for(umm i = 1; i < size(maps); i++)
+        {
+            auto next = seed;
+            dyn<sta<s64, 2>> mapped;
+            split(split(maps[i], ":\n")[1], "\n"_s, [&](auto range)
+            {
+                if(!size(range)) return;
+                auto parts = split(range, " ");
+                auto dst = toint(parts[0]);
+                auto src = toint(parts[1]);
+                auto count = toint(parts[2]);
+                if(seed >= src && seed <= src + count) next = dst + (seed - src);
+                for(umm ti = 0; ti < size(track); ti++)
+                {
+                    auto r = track[ti];
+                    s64 left = max(src, r[0]);
+                    s64 right = min(src + count, r[0] + r[1]);
+                    if(left <= right)
+                    {
+                        track.remove(ti--);
+                        mapped.add(sta(dst + (left - src), right - left));
+                        if(r[0] < src) track.add(sta(r[0], src - r[0] - 1));
+                        if(r[0] + r[1] > src + count) track.add(sta(src + count + 1, r[0] + r[1] - (src + count + 1)));
+                    }
+                }
+            });
+            track.add(mapped);
+            seed = next;
+        }
+        lowest = min(lowest, seed);
+        for(umm ti = 0; ti < size(track); ti++) lowest2 = min(lowest2, track[ti][0]);
+        if(size(track)) prev = -1;
+    });
+    print("lowest: %\n", lowest);
+    print("lowest2: %\n", lowest2);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day4.txt"_s);
-        day4(in);
+        dstr in = filestr("day5.txt"_s);
+        day5(in);
     }
     catch(const error& e)
     {
