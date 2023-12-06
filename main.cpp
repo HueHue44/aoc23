@@ -273,12 +273,45 @@ void day5(cstr in)
     print("lowest2: %\n", lowest2);
 }
 
+void day6(cstr in)
+{
+    auto lines = split(in, "\n");
+    auto times = split(lines[0], " ");
+    times.remove(0);
+    for(umm i = 0; i < size(times); i++) if(!size(times[i])) times.remove(i--);
+    auto dists = split(lines[1], " ");
+    dists.remove(0);
+    for(umm i = 0; i < size(dists); i++) if(!size(dists[i])) dists.remove(i--);
+    dyn<s64> wins;
+    wins.resize(size(times));
+    for(umm i = 0; i < size(times); i++)
+    {
+        auto maxt = toint(times[i]);
+        auto record = toint(dists[i]);
+        for(s64 time = 0; time < maxt; time++)
+        {
+            auto dist = time * (maxt - time);
+            if(dist > record) wins[i]++;
+        }
+    }
+    print("result: %\n", product(wins));
+    dstr total;
+    for(umm i = 0; i < size(times); i++) total.add(times[i]);
+    auto time = toint(total);
+    total.resize(0);
+    for(umm i = 0; i < size(dists); i++) total.add(dists[i]);
+    auto dist = toint(total);
+    s64 num = 0;
+    for(s64 t = 0; t < time; t++) num += t * (time - t) > dist;
+    print("result2: %\n", num);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day5.txt"_s);
-        day5(in);
+        dstr in = filestr("day6.txt"_s);
+        day6(in);
     }
     catch(const error& e)
     {
