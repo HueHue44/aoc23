@@ -306,12 +306,107 @@ void day6(cstr in)
     print("result2: %\n", num);
 }
 
+void day7(cstr in)
+{
+    auto type = [&](const auto& cards)
+    {
+        s64 res = 0;
+        for(s64 i = 2; i <= 14; i++)
+        {
+            if(count(cards, i) == 5) res = max(res, s64(6));
+            if(count(cards, i) == 4) res = max(res, s64(5));
+            for(s64 j = 2; j <= 14; j++) if(i != j && count(cards, i) == 3 && count(cards, j) == 2) res = max(res, s64(4));
+            if(count(cards, i) == 3) res = max(res, s64(3));
+            for(s64 j = 2; j <= 14; j++) if(i != j && count(cards, i) == 2 && count(cards, j) == 2) res = max(res, s64(2));
+            if(count(cards, i) == 2) res = max(res, s64(1));
+        }
+        return res;
+    };
+    auto sorter = [&](const auto& a, const auto& b)
+    {
+        auto diff = type(get<0>(a)) - type(get<0>(b));
+        if(diff < 0) return true;
+        else if(diff > 0) return false;
+        else
+        {
+            for(umm i = 0; i < size(get<0>(a)); i++)
+            {
+                diff = get<0>(a)[i] - get<0>(b)[i];
+                if(diff < 0) return true;
+                else if(diff > 0) return false;
+            }
+        }
+        return true;
+    };
+    dyn<tup<dyn<s64>, s64>> hands;
+    split(in, "\n"_s, [&](auto it)
+    {
+        if(!size(it)) return;
+        auto parts = split(it, " "_s);
+        dyn<s64> cards;
+        for(umm i = 0; i < size(parts[0]); i++)
+        {
+            switch(parts[0][i])
+            {
+                case 'A': cards.add(s64(14)); break;
+                case 'K': cards.add(s64(13)); break;
+                case 'Q': cards.add(s64(12)); break;
+                case 'J': cards.add(s64(11)); break;
+                case 'T': cards.add(s64(10)); break;
+                default: cards.add(s64(parts[0][i] - '0')); break;
+            }
+        }
+        auto bid = toint(parts[1]);
+        hands.add(tup(cards, bid));
+    });
+    hsort(hands, sorter);
+    s64 sum = 0;
+    for(umm i = 0; i < size(hands); i++) sum += get<1>(hands[i]) * s64(i + 1);
+    print("winnings: %\n", sum);
+    for(umm i = 0; i < size(hands); i++)
+    {
+        auto& cards = get<0>(hands[i]);
+        for(umm j = 0; j < size(cards); j++) if(cards[j] == 11) cards[j] = 1;
+    }
+    auto sorter2 = [&](const auto& a, const auto& b)
+    {
+        auto ba = a;
+        auto bb = b;
+        for(s64 val = 1; val <= 14; val++)
+        {
+            auto tba = a;
+            for(umm i = 0; i < size(get<0>(tba)); i++) if(get<0>(tba)[i] == 1) get<0>(tba)[i] = val;
+            auto tbb = b;
+            for(umm i = 0; i < size(get<0>(tbb)); i++) if(get<0>(tbb)[i] == 1) get<0>(tbb)[i] = val;
+            if(type(get<0>(tba)) > type(get<0>(ba))) ba = tba;
+            if(type(get<0>(tbb)) > type(get<0>(bb))) bb = tbb;
+        }
+        auto diff = type(get<0>(ba)) - type(get<0>(bb));
+        if(diff < 0) return true;
+        else if(diff > 0) return false;
+        else
+        {
+            for(umm i = 0; i < size(get<0>(a)); i++)
+            {
+                diff = get<0>(a)[i] - get<0>(b)[i];
+                if(diff < 0) return true;
+                else if(diff > 0) return false;
+            }
+        }
+        return true;
+    };
+    hsort(hands, sorter2);
+    sum = 0;
+    for(umm i = 0; i < size(hands); i++) sum += get<1>(hands[i]) * s64(i + 1);
+    print("winnings2: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day6.txt"_s);
-        day6(in);
+        dstr in = filestr("day7.txt"_s);
+        day7(in);
     }
     catch(const error& e)
     {
