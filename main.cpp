@@ -401,12 +401,64 @@ void day7(cstr in)
     print("winnings2: %\n", sum);
 }
 
+void day8(cstr in)
+{
+    auto parts = split(in, "\n\n"_s);
+    auto steps = parts[0];
+    map<dstr, tup<dstr, dstr>> maps;
+    split(parts[1], "\n"_s, [&](auto it)
+    {
+        if(!size(it)) return;
+        dstr at = slice(it, 0, 3);
+        dstr left = slice(it, 7, 3);
+        dstr right = slice(it, 12, 3);
+        maps[at] = tup(left, right);
+    });
+    dstr at = "AAA"_s;
+    umm step = 0;
+    while(at != "ZZZ"_s)
+    {
+        auto lr = steps[step % size(steps)];
+        if(lr == 'L') at = get<0>(maps[at]);
+        else at = get<1>(maps[at]);
+        step++;
+    }
+    print("steps: %\n", step);
+    dyn<dstr> ats;
+    each(maps, [&](const auto& it) { if(get<0>(it)[2] == 'A') ats.add(get<0>(it)); });
+    dyn<umm> cycles;
+    cycles.resize(size(ats));
+    step = 0;
+    while(true)
+    {
+        for(umm i = 0; i < size(ats); i++)
+        {
+            auto& it = ats[i];
+            auto lr = steps[step % size(steps)];
+            if(lr == 'L') it = get<0>(maps[it]);
+            else it = get<1>(maps[it]);
+            if(!cycles[i] && it[2] == 'Z') cycles[i] = step + 1;
+        }
+        if(!count(cycles, umm(0))) break;
+        step++;
+    }
+    umm factor = 1;
+    while(factor <= min(cycles))
+    {
+        umm dc = 0;
+        for(umm i = 0; i < size(cycles); i++) dc += (cycles[i] % factor == 0);
+        if(dc == size(cycles)) cycles /= factor;
+        factor++;
+    }
+    print("steps2: %\n", product(cycles) * size(steps));
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day7.txt"_s);
-        day7(in);
+        dstr in = filestr("day8.txt"_s);
+        day8(in);
     }
     catch(const error& e)
     {
