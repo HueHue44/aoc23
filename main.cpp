@@ -453,12 +453,36 @@ void day8(cstr in)
     print("steps2: %\n", product(cycles) * size(steps));
 }
 
+void day9(cstr in)
+{
+    auto rec = [&](auto f, dyn<s64> x)
+    {
+        if(count(x, s64(0)) == size(x)) return sta(s64(0), s64(0));
+        dyn<s64> diff;
+        for(umm i = 1; i < size(x); i++) diff.add(x[i] - x[i - 1]);
+        auto val = f(f, diff);
+        auto first = x[0];
+        auto last = x[size(x) - 1];
+        return sta(first - val[0], val[1] + last);
+    };
+    sta<s64, 2> sum;
+    split(in, "\n"_s, [&](auto it)
+    {
+        if(!size(it)) return;
+        auto seq = split(it, " "_s);
+        dyn<s64> nums;
+        for(umm i = 0; i < size(seq); i++) nums.add(toint(seq[i]));
+        sum += rec(rec, nums);
+    });
+    print("sum: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day8.txt"_s);
-        day8(in);
+        dstr in = filestr("day9.txt"_s);
+        day9(in);
     }
     catch(const error& e)
     {
