@@ -159,7 +159,7 @@ void day3(cstr in)
                             char cadj = engine[row + i - 1][col + j - 1];
                             adj |= (cadj < '0' || cadj > '9') && cadj != '.';
                             point p{int(row + i - 1), int(col + j - 1)};
-                            if(cadj == '*' && find(stars, p) == -1) stars.add(p);
+                            if(cadj == '*' && find(stars, p) == umm(-1)) stars.add(p);
                         }
                     }
                 }
@@ -477,12 +477,83 @@ void day9(cstr in)
     print("sum: %\n", sum);
 }
 
+void day10(cstr in)
+{
+    using point = sta<s64, 2>;
+    map<point, char> pipes;
+    auto lines = split(in, "\n"_s);
+    point start;
+    for(umm i = 0; i < size(lines); i++)
+    {
+        for(umm j = 0; j < size(lines[i]); j++)
+        {
+            char c = lines[i][j];
+            point p{s64(i), s64(j)};
+            pipes[p] = c;
+            if(c == 'S') start = p;
+        }
+    }
+    map<char, dyn<point>> dir;
+    dir['|'].add(point{-1, 0}); dir['|'].add(point{1, 0});
+    dir['-'].add(point{0, -1}); dir['-'].add(point{0, 1});
+    dir['L'].add(point{-1, 0}); dir['L'].add(point{0, 1});
+    dir['J'].add(point{-1, 0}); dir['J'].add(point{0, -1});
+    dir['7'].add(point{1, 0});  dir['7'].add(point{0, -1});
+    dir['F'].add(point{1, 0});  dir['F'].add(point{0, 1});
+    dir['S'].add(point{-1, 0}); dir['S'].add(point{1, 0});
+    dir['S'].add(point{0, -1}); dir['S'].add(point{0, 1});
+    s64 steps = 0;
+    point at = start;
+    auto copy = pipes;
+    while(true)
+    {
+        char c = copy[at];
+        copy[at] = '#';
+        s64 now = steps;
+        each(dir[c], [&](auto d)
+        {
+            char n = copy[at + d];
+            if(count(dir[n], -d) > 0 && now == steps)
+            {
+                at += d;
+                steps++;
+            }
+        });
+        if(now == steps) break;
+    }
+    print("steps: %\n", (steps + 1) / 2);
+    s64 area = 0;
+    for(umm i = 0; i < size(lines); i++)
+    {
+        s64 odd = 0;
+        s64 dir = 0;
+        for(umm j = 0; j < size(lines[i]); j++)
+        {
+            point p{s64(i), s64(j)};
+            if(copy[p] == '#')
+            {
+                if(lines[i][j] != '-')
+                {
+                    s64 next = 0;
+                    if(lines[i][j] == 'F' || lines[i][j] == '7') next = 1;
+                    if(lines[i][j] == 'L' || lines[i][j] == 'J') next = -1;
+                    if(dir == 0 || next == 0 || dir == next) odd ^= 1;
+                    dir = next;
+                    if(lines[i][j] == '7' || lines[i][j] == 'J') dir = 0;
+                }
+            }
+            area += (copy[p] != '#' && odd);
+        }
+    }
+    print("area: %\n", area);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day9.txt"_s);
-        day9(in);
+        dstr in = filestr("day10.txt"_s);
+        day10(in);
     }
     catch(const error& e)
     {

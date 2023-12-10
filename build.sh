@@ -8,4 +8,4 @@ out="out"
 
 mkdir -p $out
 
-g++ main.cpp -o $out/$1 $opt $inc $lib
+g++ main.cpp -o $out/aoc $opt $inc $lib
