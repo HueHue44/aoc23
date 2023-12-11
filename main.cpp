@@ -548,12 +548,65 @@ void day10(cstr in)
     print("area: %\n", area);
 }
 
+void day11(cstr in)
+{
+    auto rows = split(in, "\n"_s);
+    rows.remove(size(rows) - 1);
+    dyn<s64> er;
+    dyn<s64> ec;
+    for(umm i = 0; i < size(rows); i++) if(count(rows[i], '.') == size(rows[i])) er.add(s64(i));
+    for(umm i = 0; i < size(rows[0]); i++)
+    {
+        umm j = 0;
+        for(; j < size(rows); j++) if(rows[j][i] != '.') break;
+        if(j == size(rows)) ec.add(s64(i));
+    }
+    using p2 = sta<s64, 2>;
+    dyn<p2> g;
+    for(umm r = 0; r < size(rows); r++)
+    {
+        for(umm c = 0; c < size(rows[r]); c++)
+        {
+            p2 p{s64(r), s64(c)};
+            if(rows[r][c] == '#') g.add(p);
+        }
+    }
+    auto taxi = [&](auto x, auto y, s64 adder = 1)
+    {
+        auto d = x - y;
+        d[0] = abs(d[0]);
+        d[1] = abs(d[1]);
+        each(er, [&](auto it){ if(it > min(x[0], y[0]) && it < max(x[0], y[0])) d[0] += adder; });
+        each(ec, [&](auto it){ if(it > min(x[1], y[1]) && it < max(x[1], y[1])) d[1] += adder; });
+        s64 res = d[0] + d[1];
+        return res;
+    };
+    s64 tot = 0;
+    for(umm i = 0; i < size(g); i++)
+    {
+        for(umm j = i + 1; j < size(g); j++)
+        {
+            tot += taxi(g[i], g[j]);
+        }
+    }
+    print("sum: %\n", tot);
+    tot = 0;
+    for(umm i = 0; i < size(g); i++)
+    {
+        for(umm j = i + 1; j < size(g); j++)
+        {
+            tot += taxi(g[i], g[j], 999999);
+        }
+    }
+    print("sum2: %\n", tot);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day10.txt"_s);
-        day10(in);
+        dstr in = filestr("day11.txt"_s);
+        day11(in);
     }
     catch(const error& e)
     {
