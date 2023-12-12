@@ -601,12 +601,92 @@ void day11(cstr in)
     print("sum2: %\n", tot);
 }
 
+void day12(cstr in)
+{
+    map<tup<dstr, dyn<s64>, s64>, s64> mem;
+    auto comb = [&](auto f, cstr x, dyn<s64> ord, s64 c = 0) -> s64
+    {
+        if(size(x) < sum(ord) - c) return 0;
+        auto check = mem.get(tup(dstr(x), ord, c));
+        if(check.valid()) return get<1>(check.value());
+        for(umm i = 0; i < size(x); i++)
+        {
+            if(x[i] == '#')
+            {
+                c++;
+                if(!size(ord) || c > ord[0]) return 0;
+            }
+            else if(x[i] == '?')
+            {
+                dstr n = slice(x, i);
+                n[0] = '.';
+                s64 a = f(f, n, ord, c);
+                mem[tup(n, ord, c)] = a;
+                n[0] = '#';
+                s64 b = f(f, n, ord, c);
+                mem[tup(n, ord, c)] = b;
+                return a + b;
+            }
+            else if(x[i] == '.')
+            {
+                if(c)
+                {
+                    if(!size(ord) || c != ord[0]) return 0;
+                    ord.remove(0);
+                    c = 0;
+                }
+            }
+        }
+        if(c && size(ord) == 1 && c == ord[0]) return 1;
+        return !size(ord) && !c;
+    };
+    auto test = [&](auto in)
+    {
+        auto parts = split(in, " "_s);
+        dyn<s64> ord;
+        split(parts[1], ","_s, [&](auto it){ ord.add(toint(it)); });
+        return comb(comb, parts[0], ord);
+    };
+    s64 sum = 0;
+    split(in, "\n"_s, [&](auto it)
+    {
+        if(!size(it)) return;
+        auto parts = split(it, " "_s);
+        dyn<s64> ord;
+        split(parts[1], ","_s, [&](auto it){ ord.add(toint(it)); });
+        sum += comb(comb, parts[0], ord);
+    });
+    print("sum: %\n", sum);
+    sum = 0;
+    split(in, "\n"_s, [&](auto it)
+    {
+        if(!size(it)) return;
+        auto parts = split(it, " "_s);
+        dstr a = parts[0];
+        dstr b = parts[1];
+        dstr ta = a;
+        ta.add('?');
+        dstr tb = b;
+        tb.add(',');
+        for(umm i = 0; i < 4; i++)
+        {
+            a.insert(0, ta);
+            b.insert(0, tb);
+        }
+        dyn<s64> ord;
+        split(b, ","_s, [&](auto it){ ord.add(toint(it)); });
+        sum += comb(comb, a, ord);
+        print("ze sum: %\n", sum);
+    });
+    print("sum2: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day11.txt"_s);
-        day11(in);
+        dstr in = filestr("day12.txt"_s);
+        day12(in);
     }
     catch(const error& e)
     {
