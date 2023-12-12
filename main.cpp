@@ -676,7 +676,6 @@ void day12(cstr in)
         dyn<s64> ord;
         split(b, ","_s, [&](auto it){ ord.add(toint(it)); });
         sum += comb(comb, a, ord);
-        print("ze sum: %\n", sum);
     });
     print("sum2: %\n", sum);
 }
