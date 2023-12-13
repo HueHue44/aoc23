@@ -680,12 +680,95 @@ void day12(cstr in)
     print("sum2: %\n", sum);
 }
 
+void day13(cstr in)
+{
+    auto test = [&](auto x)
+    {
+        auto lines = split(x, "\n"_s);
+        if(!size(lines[size(lines) - 1])) lines.remove(size(lines) - 1);
+        dyn<s64> all;
+        umm col = 1;
+        while(col < size(lines[0]))
+        {
+            bool ok = true;
+            for(umm i = 0; col >= 1 + i && col + i < size(lines[0]) && ok; i++)
+            {
+                for(umm j = 0; j < size(lines) && ok; j++)
+                {
+                    if(lines[j][col - 1 - i] != lines[j][col + i]) ok = false;
+                }
+            }
+            if(ok) all.add(s64(col));
+            col++;
+        }
+        umm row = 1;
+        while(row < size(lines))
+        {
+            bool ok = true;
+            for(umm i = 0; row >= 1 + i && row + i < size(lines) && ok; i++)
+            {
+                if(lines[row - 1 - i] != lines[row + i]) ok = false;
+            }
+            if(ok) all.add(s64(row) * 100);
+            row++;
+        }
+        return all;
+    };
+    s64 sum = 0;
+    split(in, "\n\n"_s, [&](auto pat)
+    {
+        if(!size(pat)) return;
+        auto r = ::sum(test(pat));
+        sum += r;
+    });
+    print("sum: %\n", sum);
+    sum = 0;
+    split(in, "\n\n"_s, [&](auto pat)
+    {
+        if(!size(pat)) return;
+        dstr fix = pat;
+        auto def = ::sum(test(fix));
+        for(umm i = 0; i < size(fix); i++)
+        {
+            if(fix[i] == '.')
+            {
+                fix[i] = '#';
+                auto r = test(fix);
+                for(umm j = 0; j < size(r); j++)
+                {
+                    if(r[j] != def)
+                    {
+                        sum += r[j];
+                        return;
+                    }
+                }
+                fix[i] = '.';
+            }
+            else if(fix[i] == '#')
+            {
+                fix[i] = '.';
+                auto r = test(fix);
+                for(umm j = 0; j < size(r); j++)
+                {
+                    if(r[j] != def)
+                    {
+                        sum += r[j];
+                        return;
+                    }
+                }
+                fix[i] = '#';
+            }
+        }
+    });
+    print("sum2: %\n", sum);
+}
+
 int main()
 {
     try
     {
-        dstr in = filestr("day12.txt"_s);
-        day12(in);
+        dstr in = filestr("day13.txt"_s);
+        day13(in);
     }
     catch(const error& e)
     {
